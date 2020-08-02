@@ -18,10 +18,6 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html",
-      title: "Awesome games",
     }),
   ],
-  devServer: {
-    contentBase: "./dist",
-  },
 };
