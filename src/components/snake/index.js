@@ -1,6 +1,6 @@
 import React from "react";
 
-function Home() {
+function Snake() {
   return (
     <div className="text-container">
       <h2>Snake game will be here...</h2>
@@ -8,4 +8,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Snake;
