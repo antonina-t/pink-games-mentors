@@ -32,21 +32,53 @@ function generateCards() {
   return cards;
 }
 
+function flipCards(cards, keysToFlip) {
+  return cards.map((card) => {
+    return {
+      ...card,
+      isFlipped: keysToFlip.includes(card.key)
+        ? !card.isFlipped
+        : card.isFlipped,
+    };
+  });
+}
+
 function Memory() {
-  const [cards, setCards] = useState(generateCards());
+  const [game, setGame] = useState({ cards: generateCards() });
   const status = "Time: 0s";
 
-  function onCardClick(key) {
-    setCards((oldCards) =>
-      oldCards.map((card) => {
-        if (card.key === key) return { ...card, isFlipped: true };
-        return card;
-      })
-    );
+  function onCardClick(card) {
+    if (card.isFlipped) {
+      return;
+    }
+    setGame(({ cards, firstCard, secondCard }) => {
+      if (!firstCard) {
+        return {
+          cards: flipCards(cards, [card.key]),
+          firstCard: card,
+        };
+      } else if (!secondCard) {
+        return {
+          cards: flipCards(cards, [card.key]),
+          firstCard: firstCard,
+          secondCard: card,
+        };
+      } else if (firstCard.color === secondCard.color) {
+        return {
+          cards: flipCards(cards, [card.key]),
+          firstCard: card,
+        };
+      } else {
+        return {
+          cards: flipCards(cards, [card.key, firstCard.key, secondCard.key]),
+          firstCard: card,
+        };
+      }
+    });
   }
 
   function onRestart() {
-    setCards(generateCards());
+    setGame({ cards: generateCards() });
   }
 
   return (
@@ -54,10 +86,10 @@ function Memory() {
       <div className="game-container">
         <StatusBar status={status} onRestart={onRestart}></StatusBar>
         <div className="memory-grid">
-          {cards.map((card) => (
+          {game.cards.map((card) => (
             <MemoryCard
               {...card}
-              onClick={() => onCardClick(card.key)}
+              onClick={() => onCardClick(card)}
             ></MemoryCard>
           ))}
         </div>
