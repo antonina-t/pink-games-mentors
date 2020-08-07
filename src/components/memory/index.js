@@ -21,11 +21,13 @@ function generateCards() {
       key: i * 2,
       color: colors[i],
       isFlipped: false,
+      isLocked: false,
     });
     cards.push({
       key: i * 2 + 1,
       color: colors[i],
       isFlipped: false,
+      isLocked: false,
     });
   }
   cards.sort(() => Math.random() - 0.5);
@@ -43,6 +45,15 @@ function flipCards(cards, keysToFlip) {
   });
 }
 
+function setMatchingPair(cards, pairKeys) {
+  return cards.map((card) => {
+    return {
+      ...card,
+      isLocked: pairKeys.includes(card.key) ? true : card.isFlipped,
+    };
+  });
+}
+
 function Memory() {
   const [game, setGame] = useState({ cards: generateCards() });
 
@@ -52,14 +63,16 @@ function Memory() {
   const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
 
+  const [win, setWin] = useState(false);
+
   useEffect(() => {
-    if (startTime !== 0) {
+    if (!win && startTime !== 0) {
       const intervalId = setInterval(() => {
         setElapsedTime(Date.now() - startTime);
       }, 1000);
       return () => clearInterval(intervalId);
     }
-  }, [startTime]);
+  }, [startTime, win]);
 
   useEffect(() => {
     if (!wrongPair) return;
@@ -89,7 +102,7 @@ function Memory() {
       return;
     }
     setGame(({ cards, firstCard }) => {
-      const newCards = flipCards(cards, [card.key]);
+      let newCards = flipCards(cards, [card.key]);
       if (!firstCard) {
         return {
           cards: newCards,
@@ -98,6 +111,11 @@ function Memory() {
       } else {
         if (firstCard.color !== card.color) {
           setWrongPair([firstCard, card]);
+        } else {
+          newCards = setMatchingPair(newCards, [firstCard.key, card.key]);
+          if (newCards.every((card) => card.isLocked)) {
+            setWin(true);
+          }
         }
         return {
           cards: newCards,
@@ -111,6 +129,7 @@ function Memory() {
     setGame({ cards: generateCards() });
     setStartTime(0);
     setElapsedTime(0);
+    setWin(false);
   }
 
   return (
