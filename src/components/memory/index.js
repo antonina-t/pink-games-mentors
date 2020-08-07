@@ -45,6 +45,10 @@ function flipCards(cards, keysToFlip) {
 
 function Memory() {
   const [game, setGame] = useState({ cards: generateCards() });
+
+  const [wrongPair, setWrongPair] = useState(null);
+  const timeoutIds = useRef([]);
+
   const [startTime, setStartTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
 
@@ -57,31 +61,46 @@ function Memory() {
     }
   }, [startTime]);
 
+  useEffect(() => {
+    if (!wrongPair) return;
+    const timeoutId = setTimeout(() => {
+      setGame((oldGame) => {
+        return {
+          ...oldGame,
+          cards: flipCards(
+            oldGame.cards,
+            wrongPair.map((card) => card.key)
+          ),
+        };
+      });
+    }, 1000);
+
+    timeoutIds.current = timeoutIds.current.concat(timeoutId);
+  }, [wrongPair]);
+
+  useEffect(() => {
+    return () => {
+      timeoutIds.current.forEach((id) => clearTimeout(id));
+    };
+  }, []);
+
   function onCardClick(card) {
     if (card.isFlipped) {
       return;
     }
-    setGame(({ cards, firstCard, secondCard }) => {
+    setGame(({ cards, firstCard }) => {
+      const newCards = flipCards(cards, [card.key]);
       if (!firstCard) {
         return {
-          cards: flipCards(cards, [card.key]),
-          firstCard: card,
-        };
-      } else if (!secondCard) {
-        return {
-          cards: flipCards(cards, [card.key]),
-          firstCard: firstCard,
-          secondCard: card,
-        };
-      } else if (firstCard.color === secondCard.color) {
-        return {
-          cards: flipCards(cards, [card.key]),
+          cards: newCards,
           firstCard: card,
         };
       } else {
+        if (firstCard.color !== card.color) {
+          setWrongPair([firstCard, card]);
+        }
         return {
-          cards: flipCards(cards, [card.key, firstCard.key, secondCard.key]),
-          firstCard: card,
+          cards: newCards,
         };
       }
     });
