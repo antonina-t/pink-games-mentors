@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import MemoryCard from "./MemoryCard";
 import StatusBar from "./StatusBar";
+import ResultModal from "./ResultModal";
 import "./index.css";
 
 const colors = [
@@ -72,6 +73,8 @@ function Memory() {
 
   const [win, setWin] = useState(false);
 
+  const [showModal, setShowModal] = useState(false);
+
   useEffect(() => {
     if (!win && startTime !== 0) {
       const intervalId = setInterval(() => {
@@ -122,6 +125,7 @@ function Memory() {
           newCards = setMatchingPair(newCards, [firstCard.key, card.key]);
           if (newCards.every((card) => card.isLocked)) {
             setWin(true);
+            setShowModal(true);
           }
         }
         return {
@@ -155,6 +159,12 @@ function Memory() {
           ))}
         </div>
       </div>
+      <ResultModal
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        header="Congratulations!"
+        body={"You won! You time was " + prettifyTime(elapsedTime) + "."}
+      ></ResultModal>
     </div>
   );
 }
