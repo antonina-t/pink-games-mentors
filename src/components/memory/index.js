@@ -45,6 +45,13 @@ function flipCards(cards, keysToFlip) {
   });
 }
 
+function prettifyTime(timeMs) {
+  const totalSeconds = Math.floor(timeMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return (minutes > 0 ? minutes + "m " : "") + seconds + "s";
+}
+
 function setMatchingPair(cards, pairKeys) {
   return cards.map((card) => {
     return {
@@ -135,7 +142,10 @@ function Memory() {
   return (
     <div>
       <div className="game-container">
-        <StatusBar status={`Time: ${elapsedTime}ms`} onRestart={onRestart} />
+        <StatusBar
+          status={`Time: ${prettifyTime(elapsedTime)}`}
+          onRestart={onRestart}
+        />
         <div className="memory-grid">
           {game.cards.map((card) => (
             <MemoryCard
