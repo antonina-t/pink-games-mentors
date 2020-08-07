@@ -1,12 +1,27 @@
+@media only screen and (orientation: landscape) {
+  .game-container {
+    width: 40vw;
+  }
+  .memory-grid {
+    height: 40vw;
+    grid-gap: 0.5vw;
+  }
+}
+@media only screen and (orientation: portrait) {
+  .game-container {
+    width: 98vw;
+  }
+  .memory-grid {
+    height: 98vw;
+    grid-gap: 1vw;
+  }
+}
 .game-container {
-  width: 40vw;
   margin: 1vw auto;
 }
 .memory-grid {
-  height: 40vw;
   margin-top: 1vw;
   display: grid;
   grid-template-columns: repeat(4, auto);
   grid-template-rows: repeat(4, auto);
-  grid-gap: 0.5vw;
 }
