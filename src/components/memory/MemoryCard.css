@@ -2,28 +2,29 @@
   border: 1px solid black;
   border-radius: 5px;
   background-color: white;
+  background-size: cover;
 }
-.pink {
-  background-color: #ff43d0;
+.banana {
+  background-image: url("../../images/banana.jpg");
 }
-.red {
-  background-color: #ff0900;
+.cat {
+  background-image: url("../../images/cat.jpg");
 }
-.orange {
-  background-color: #ff7f00;
+.chicken {
+  background-image: url("../../images/chicken.jpg");
 }
-.yellow {
-  background-color: #ffef00;
+.coffee {
+  background-image: url("../../images/coffee.jpg");
 }
-.teal {
-  background-color: #63d3df;
+.eiffel {
+  background-image: url("../../images/eiffel.jpg");
 }
-.green {
-  background-color: #00f11d;
+.stockholm {
+  background-image: url("../../images/stockholm.jpg");
 }
-.blue {
-  background-color: #0079ff;
+.swan {
+  background-image: url("../../images/swan.jpg");
 }
-.purple {
-  background-color: #a800ff;
+.tomato {
+  background-image: url("../../images/tomato.jpg");
 }

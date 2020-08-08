@@ -4,29 +4,29 @@ import StatusBar from "./StatusBar";
 import ResultModal from "./ResultModal";
 import "./index.css";
 
-const colors = [
-  "pink",
-  "red",
-  "orange",
-  "yellow",
-  "green",
-  "teal",
-  "blue",
-  "purple",
+const images = [
+  "banana",
+  "cat",
+  "chicken",
+  "coffee",
+  "eiffel",
+  "stockholm",
+  "swan",
+  "tomato",
 ];
 
 function generateCards() {
   const cards = [];
-  for (let i = 0; i < colors.length; i++) {
+  for (let i = 0; i < images.length; i++) {
     cards.push({
       key: i * 2,
-      color: colors[i],
+      color: images[i],
       isFlipped: false,
       isLocked: false,
     });
     cards.push({
       key: i * 2 + 1,
-      color: colors[i],
+      color: images[i],
       isFlipped: false,
       isLocked: false,
     });
