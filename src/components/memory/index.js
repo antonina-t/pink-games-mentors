@@ -138,6 +138,7 @@ function Memory() {
   }
 
   function onRestart() {
+    timeoutIds.current.forEach((id) => clearTimeout(id));
     setGame({ cards: generateCards() });
     setStartTime(0);
     setElapsedTime(0);
