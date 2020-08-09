@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "./index.css";
 import MemoryCard from "./MemoryCard";
 import StatusBar from "./StatusBar";
+import ResultModal from "./ResultModal";
 
 const colors = [
   "pink",
@@ -21,11 +22,13 @@ function generateCards() {
       key: i * 2,
       isFlipped: false,
       color: colors[i],
+      isLocked: false,
     });
     cards.push({
       key: i * 2 + 1,
       isFlipped: false,
       color: colors[i],
+      isLocked: false,
     });
   }
   return cards.sort(() => Math.random() - 0.5);
@@ -43,9 +46,31 @@ function flipCards(cards, keysToFlip) {
   });
 }
 
+function lockCards(cards, keysToLock) {
+  return cards.map((card) => {
+    if (keysToLock.includes(card.key)) {
+      return {
+        ...card,
+        isLocked: true,
+      };
+    }
+    return card;
+  });
+}
+
+function prettifyTime(timeMs) {
+  const totalSeconds = Math.floor(timeMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds - minutes * 60;
+  return minutes ? `${minutes}m ${seconds}s` : `${seconds}s`;
+}
+
 function Memory() {
   const [game, setGame] = useState({ cards: generateCards() });
   const [wrongPair, setWrongPair] = useState([]);
+
+  const [win, setWin] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const timeoutIds = useRef([]);
 
@@ -53,12 +78,12 @@ function Memory() {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
-    if (startTime === 0) return;
+    if (startTime === 0 || win) return;
     const intervalId = setInterval(() => {
       setElapsedTime(Date.now() - startTime);
     }, 1000);
     return () => clearInterval(intervalId);
-  }, [startTime]);
+  }, [startTime, win]);
 
   useEffect(() => {
     if (wrongPair.length === 0) return;
@@ -69,8 +94,8 @@ function Memory() {
           wrongPair.map((card) => card.key)
         );
         return {
+          ...oldGame,
           cards: newCards,
-          firstCard: oldGame.firstCard,
         };
       });
     }, 1000);
@@ -89,6 +114,7 @@ function Memory() {
     setGame({ cards: generateCards() });
     setStartTime(0);
     setElapsedTime(0);
+    setWin(false);
   }
 
   function onCardClick(card) {
@@ -99,8 +125,7 @@ function Memory() {
       // The { cards, firstCard, secondCard } above is the decomposed game object.
       // These three variables represent the previous state, before a card was clicked.
       // We should return the new state, depending on the previous one and on the card that was clicked.
-
-      const newCards = flipCards(cards, [card.key]);
+      let newCards = flipCards(cards, [card.key]);
 
       if (!firstCard) {
         return {
@@ -110,6 +135,12 @@ function Memory() {
       } else {
         if (firstCard.color !== card.color) {
           setWrongPair([firstCard, card]);
+        } else {
+          newCards = lockCards(newCards, [firstCard.key, card.key]);
+          if (newCards.every((card) => card.isLocked)) {
+            setWin(true);
+            setShowModal(true);
+          }
         }
         return {
           cards: newCards,
@@ -128,7 +159,7 @@ function Memory() {
   return (
     <div className="game-container">
       <StatusBar
-        status={"Time: " + elapsedTime + "ms"}
+        status={"Time: " + prettifyTime(elapsedTime)}
         onRestart={onRestart}
       ></StatusBar>
       <div className="memory-grid">
@@ -136,6 +167,12 @@ function Memory() {
           <MemoryCard {...card} onClick={() => onCardClick(card)}></MemoryCard>
         ))}
       </div>
+      <ResultModal
+        show={showModal}
+        header="Congratulations, you won!"
+        body={"Your time was " + prettifyTime(elapsedTime) + "."}
+        handleClose={() => setShowModal(false)}
+      ></ResultModal>
     </div>
   );
 }
