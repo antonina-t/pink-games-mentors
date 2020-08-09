@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import MemoryCard from "./MemoryCard";
 import StatusBar from "./StatusBar";
 import ResultModal from "./ResultModal";
+import Preloads from "./Preloads";
 import "./index.css";
 
 const images = [
@@ -145,6 +146,7 @@ function Memory() {
 
   return (
     <div>
+      <Preloads />
       <div className="game-container">
         <StatusBar
           status={`Time: ${prettifyTime(elapsedTime)}`}
