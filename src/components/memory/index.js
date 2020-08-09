@@ -3,6 +3,7 @@ import MemoryCard from "./MemoryCard";
 import StatusBar from "./StatusBar";
 import ResultModal from "./ResultModal";
 import Preloads from "./Preloads";
+import * as utils from "../../utils";
 import "./index.css";
 
 const images = [
@@ -45,13 +46,6 @@ function flipCards(cards, keysToFlip) {
         : card.isFlipped,
     };
   });
-}
-
-function prettifyTime(timeMs) {
-  const totalSeconds = Math.floor(timeMs / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return (minutes > 0 ? minutes + "m " : "") + seconds + "s";
 }
 
 function setMatchingPair(cards, pairKeys) {
@@ -146,12 +140,29 @@ function Memory() {
     setWin(false);
   }
 
+  function fetchLeaderboard() {
+    return utils
+      .fetchLeaderboard("memory")
+      .then((entries) =>
+        entries.map(
+          ({ name, timeMs }, i) =>
+            `${i + 1}. ${name}: ${utils.prettifyTime(timeMs)}`
+        )
+      );
+  }
+
+  function saveScore(name) {
+    if (name) {
+      utils.saveScore("memory", { name: name, timeMs: elapsedTime });
+    }
+  }
+
   return (
     <div>
       <Preloads />
       <div className="game-container">
         <StatusBar
-          status={`Time: ${prettifyTime(elapsedTime)}`}
+          status={`Time: ${utils.prettifyTime(elapsedTime)}`}
           onRestart={onRestart}
         />
         <div className="memory-grid">
@@ -167,7 +178,9 @@ function Memory() {
         show={showModal}
         handleClose={() => setShowModal(false)}
         header="Congratulations!"
-        body={"You won! You time was " + prettifyTime(elapsedTime) + "."}
+        body={"You won! Your time was " + utils.prettifyTime(elapsedTime) + "."}
+        fetchLeaderboard={fetchLeaderboard}
+        saveScore={saveScore}
       ></ResultModal>
     </div>
   );
