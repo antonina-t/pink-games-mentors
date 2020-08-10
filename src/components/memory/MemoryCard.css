@@ -1,29 +1,57 @@
+.memory-scene {
+  perspective: 600px;
+}
+.memory-card-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 1s;
+  transform-style: preserve-3d;
+}
+.flipped {
+  transform: rotateY(180deg);
+}
 .memory-card {
   border: 1px solid black;
   border-radius: 5px;
-  background-color: white;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; /* Safari */
 }
-.pink {
-  background-color: #ff43d0;
+.memory-card-back {
+  background-color: rgb(214 214 214);
+  background-image: radial-gradient(white 15%, transparent 16%),
+    radial-gradient(white 15%, transparent 16%);
+  background-size: 60px 60px;
+  background-position: 0 0, 30px 30px;
 }
-.red {
-  background-color: #ff0900;
+.memory-card-front {
+  background-size: cover;
+  transform: rotateY(180deg);
 }
-.orange {
-  background-color: #ff7f00;
+.banana {
+  background-image: url("../../images/banana.jpg");
 }
-.yellow {
-  background-color: #ffef00;
+.cat {
+  background-image: url("../../images/cat.jpg");
 }
-.teal {
-  background-color: #63d3df;
+.chicken {
+  background-image: url("../../images/chicken.jpg");
 }
-.green {
-  background-color: #00f11d;
+.coffee {
+  background-image: url("../../images/coffee.jpg");
 }
-.blue {
-  background-color: #0079ff;
+.eiffel {
+  background-image: url("../../images/eiffel.jpg");
 }
-.purple {
-  background-color: #a800ff;
+.stockholm {
+  background-image: url("../../images/stockholm.jpg");
+}
+.swan {
+  background-image: url("../../images/swan.jpg");
+}
+.tomato {
+  background-image: url("../../images/tomato.jpg");
 }

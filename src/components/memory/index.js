@@ -3,31 +3,32 @@ import "./index.css";
 import MemoryCard from "./MemoryCard";
 import StatusBar from "./StatusBar";
 import ResultModal from "./ResultModal";
+import Preloads from "./Preloads";
 
-const colors = [
-  "pink",
-  "red",
-  "orange",
-  "yellow",
-  "teal",
-  "green",
-  "blue",
-  "purple",
+const images = [
+  "banana",
+  "cat",
+  "chicken",
+  "coffee",
+  "eiffel",
+  "stockholm",
+  "swan",
+  "tomato",
 ];
 
 function generateCards() {
   const cards = [];
-  for (let i = 0; i < colors.length; i++) {
+  for (let i = 0; i < images.length; i++) {
     cards.push({
       key: i * 2,
       isFlipped: false,
-      color: colors[i],
+      color: images[i],
       isLocked: false,
     });
     cards.push({
       key: i * 2 + 1,
       isFlipped: false,
-      color: colors[i],
+      color: images[i],
       isLocked: false,
     });
   }
@@ -158,6 +159,7 @@ function Memory() {
 
   return (
     <div className="game-container">
+      <Preloads />
       <StatusBar
         status={"Time: " + prettifyTime(elapsedTime)}
         onRestart={onRestart}
