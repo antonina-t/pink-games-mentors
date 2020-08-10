@@ -69,6 +69,7 @@ function Memory() {
   const [win, setWin] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
+  const [scoreIsSaved, setScoreIsSaved] = useState(false);
 
   useEffect(() => {
     if (!win && startTime !== 0) {
@@ -138,6 +139,7 @@ function Memory() {
     setStartTime(0);
     setElapsedTime(0);
     setWin(false);
+    setScoreIsSaved(false);
   }
 
   function fetchLeaderboard() {
@@ -153,7 +155,9 @@ function Memory() {
 
   function saveScore(name) {
     if (name) {
-      utils.saveScore("memory", { name: name, timeMs: elapsedTime });
+      utils
+        .saveScore("memory", { name: name, timeMs: elapsedTime })
+        .then(() => setScoreIsSaved(true));
     }
   }
 
@@ -164,6 +168,7 @@ function Memory() {
         <StatusBar
           status={`Time: ${utils.prettifyTime(elapsedTime)}`}
           onRestart={onRestart}
+          onShowLeaderboard={() => setShowModal(true)}
         />
         <div className="memory-grid">
           {game.cards.map((card) => (
@@ -177,10 +182,13 @@ function Memory() {
       <ResultModal
         show={showModal}
         handleClose={() => setShowModal(false)}
-        header="Congratulations!"
-        body={"You won! Your time was " + utils.prettifyTime(elapsedTime) + "."}
+        header={win ? "Congratulations!" : "Leaderboard"}
+        body={
+          win &&
+          "You won! Your time was " + utils.prettifyTime(elapsedTime) + "."
+        }
         fetchLeaderboard={fetchLeaderboard}
-        saveScore={saveScore}
+        saveScore={win && !scoreIsSaved && saveScore}
       ></ResultModal>
     </div>
   );

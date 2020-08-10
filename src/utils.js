@@ -23,7 +23,7 @@ export function fetchLeaderboard(game) {
 export function saveScore(game, score) {
   const auth = firebase.auth();
   const db = firebase.firestore();
-  auth
+  return auth
     .signInAnonymously()
     .then(() => db.collection(game).add(score))
     .catch(function (error) {
