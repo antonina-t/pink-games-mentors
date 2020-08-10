@@ -4,6 +4,7 @@ import MemoryCard from "./MemoryCard";
 import StatusBar from "./StatusBar";
 import ResultModal from "./ResultModal";
 import Preloads from "./Preloads";
+import * as utils from "../../utils";
 
 const images = [
   "banana",
@@ -141,6 +142,7 @@ function Memory() {
           if (newCards.every((card) => card.isLocked)) {
             setWin(true);
             setShowModal(true);
+            setElapsedTime(Date.now() - startTime);
           }
         }
         return {
@@ -155,6 +157,20 @@ function Memory() {
       }
       return oldStartTime;
     });
+  }
+
+  function fetchLeaderboard() {
+    return utils.fetchLeaderboard("memory").then((lb) => {
+      return lb.map(
+        (entry, i) => `${i + 1}. ${entry.name}: ${prettifyTime(entry.timeMs)}`
+      );
+    });
+  }
+
+  function saveScore(name) {
+    if (name) {
+      utils.saveScore("memory", { name: name, timeMs: elapsedTime });
+    }
   }
 
   return (
@@ -174,6 +190,8 @@ function Memory() {
         header="Congratulations, you won!"
         body={"Your time was " + prettifyTime(elapsedTime) + "."}
         handleClose={() => setShowModal(false)}
+        fetchLeaderboard={fetchLeaderboard}
+        saveScore={saveScore}
       ></ResultModal>
     </div>
   );
