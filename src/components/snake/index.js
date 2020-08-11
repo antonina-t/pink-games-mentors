@@ -33,19 +33,61 @@ function isEqual(cell1, cell2) {
 }
 
 function tick(game) {
-  console.log("Updating...");
-  return game;
+  if (game.isOver) return game;
+  const { snake, food } = game;
+  let newHead;
+  switch (snake.dir) {
+    case "right":
+      newHead = { x: snake.head.x + 1, y: snake.head.y };
+      break;
+    case "down":
+      newHead = { x: snake.head.x, y: snake.head.y + 1 };
+      break;
+    case "left":
+      newHead = { x: snake.head.x - 1, y: snake.head.y };
+      break;
+    case "up":
+      newHead = { x: snake.head.x, y: snake.head.y - 1 };
+      break;
+  }
+  if (
+    newHead.x < 0 ||
+    newHead.x == width ||
+    newHead.y < 0 ||
+    newHead.y == height ||
+    snake.tail.some((cell) => isEqual(cell, newHead))
+  )
+    return { ...game, isOver: true };
+  const newSnake = {
+    ...snake,
+    head: newHead,
+    tail: [snake.head].concat(
+      snake.tail.slice(0, snake.tail.length - (isEqual(newHead, food) ? 0 : 1))
+    ),
+  };
+  return {
+    ...game,
+    snake: newSnake,
+    food: isEqual(newHead, food) ? generateFood(newSnake) : food,
+  };
 }
 
 function Snake() {
   const [game, setGame] = useState(generateGame());
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setGame((oldGame) => tick(oldGame));
-    }, 400);
-    return () => clearInterval(intervalId);
-  }, []);
+    if (!gameOver) {
+      const intervalId = setInterval(() => {
+        setGame((oldGame) => {
+          const newGame = tick(oldGame);
+          if (newGame.isOver) setGameOver(true);
+          return newGame;
+        });
+      }, 400);
+      return () => clearInterval(intervalId);
+    }
+  }, [gameOver]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
