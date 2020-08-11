@@ -5,3 +5,15 @@
   text-align: center;
   background-color: white;
 }
+@media only screen and (orientation: landscape) {
+  .game-container {
+    width: 40vw;
+    margin: 1vw auto;
+  }
+}
+@media only screen and (orientation: portrait) {
+  .game-container {
+    width: 96vw;
+    margin: 2vw auto;
+  }
+}
