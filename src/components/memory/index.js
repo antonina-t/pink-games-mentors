@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import MemoryCard from "./MemoryCard";
-import StatusBar from "./StatusBar";
-import ResultModal from "./ResultModal";
+import StatusBar from "../StatusBar";
+import ResultModal from "../ResultModal";
 import Preloads from "./Preloads";
 import * as utils from "../../utils";
 import "./index.css";

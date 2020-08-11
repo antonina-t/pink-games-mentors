@@ -1,8 +1,24 @@
+.memory-card-scene {
+  perspective: 600px;
+}
+.memory-card-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 1s;
+  transform-style: preserve-3d;
+}
+.flipped {
+  transform: rotateY(180deg);
+}
 .memory-card {
   border: 1px solid black;
   border-radius: 5px;
-  background-color: white;
-  background-size: cover;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; /* Safari */
 }
 .back {
   background-color: rgb(241, 159, 173);
@@ -10,6 +26,10 @@
     radial-gradient(white 15%, transparent 16%);
   background-size: 30px 30px;
   background-position: 0 0, 15px 15px;
+}
+.front {
+  transform: rotateY(180deg);
+  background-size: cover;
 }
 .banana {
   background-image: url("../../images/banana.jpg");
