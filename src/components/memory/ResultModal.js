@@ -32,17 +32,19 @@ function ResultModal({
         ) : (
           <p>Loading leaderboard...</p>
         )}
-        <Form.Control
-          type="text"
-          placeholder="Your name"
-          onChange={(event) => setName(event.target.value)}
-        />
+        {saveScore && (
+          <Form.Control
+            type="text"
+            placeholder="Your name"
+            onChange={(event) => setName(event.target.value)}
+          />
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button
           variant="light"
           onClick={() => {
-            saveScore(name);
+            saveScore && saveScore(name);
             handleClose();
           }}
         >
