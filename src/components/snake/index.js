@@ -4,6 +4,7 @@ import TouchController from "./TouchController";
 
 const width = 20;
 const height = 12;
+const initialIntervalMs = 400;
 
 function generateGame() {
   const snake = {
@@ -14,6 +15,8 @@ function generateGame() {
   return {
     snake,
     food: generateFood(snake),
+    commands: [],
+    isOver: false,
   };
 }
 
@@ -33,11 +36,37 @@ function isEqual(cell1, cell2) {
   return cell1.x === cell2.x && cell1.y === cell2.y;
 }
 
+function isOpposite(dir1, dir2) {
+  return (
+    (dir1 === "left" && dir2 === "right") ||
+    (dir1 === "right" && dir2 === "left") ||
+    (dir1 === "up" && dir2 === "down") ||
+    (dir1 === "down" && dir2 === "up")
+  );
+}
+
+function getIntervalMs(tailLength) {
+  return initialIntervalMs * Math.pow(0.95, Math.floor((tailLength - 1) / 3));
+}
+
 function tick(game) {
-  if (game.isOver) return game;
-  const { snake, food } = game;
+  const { snake, food, commands } = game;
+
+  let newCommands = [...commands];
+  while (
+    newCommands.length > 0 &&
+    (isOpposite(newCommands[0], snake.dir) || newCommands[0] === snake.dir)
+  ) {
+    newCommands = newCommands.slice(1);
+  }
+  let newDir = snake.dir;
+  if (newCommands.length > 0) {
+    newDir = newCommands[0];
+    newCommands = newCommands.slice(1);
+  }
+
   let newHead;
-  switch (snake.dir) {
+  switch (newDir) {
     case "right":
       newHead = { x: snake.head.x + 1, y: snake.head.y };
       break;
@@ -59,23 +88,28 @@ function tick(game) {
     snake.tail.some((cell) => isEqual(cell, newHead))
   )
     return { ...game, isOver: true };
+
+  const newTail = [snake.head, ...snake.tail];
+  if (!isEqual(newHead, food)) newTail.pop();
+
   const newSnake = {
-    ...snake,
     head: newHead,
-    tail: [snake.head].concat(
-      snake.tail.slice(0, snake.tail.length - (isEqual(newHead, food) ? 0 : 1))
-    ),
+    tail: newTail,
+    dir: newDir,
   };
+
   return {
     ...game,
     snake: newSnake,
     food: isEqual(newHead, food) ? generateFood(newSnake) : food,
+    commands: newCommands,
   };
 }
 
 function Snake() {
   const [game, setGame] = useState(generateGame());
   const [gameOver, setGameOver] = useState(false);
+  const [intervalMs, setIntervalMs] = useState(initialIntervalMs);
 
   useEffect(() => {
     if (!gameOver) {
@@ -83,12 +117,13 @@ function Snake() {
         setGame((oldGame) => {
           const newGame = tick(oldGame);
           if (newGame.isOver) setGameOver(true);
+          setIntervalMs(getIntervalMs(newGame.snake.tail.length));
           return newGame;
         });
-      }, 400);
+      }, intervalMs);
       return () => clearInterval(intervalId);
     }
-  }, [gameOver]);
+  }, [gameOver, intervalMs]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
@@ -115,17 +150,14 @@ function Snake() {
         newDir = "down";
         break;
     }
-    if (newDir) setDir(newDir);
+    if (newDir) addCommand(newDir);
   }
 
-  function setDir(dir) {
+  function addCommand(dir) {
     setGame((oldGame) => {
       return {
         ...oldGame,
-        snake: {
-          ...oldGame.snake,
-          dir,
-        },
+        commands: [...oldGame.commands, dir],
       };
     });
   }
@@ -151,7 +183,7 @@ function Snake() {
   return (
     <div className="game-container">
       <div className="snake-grid">{cells}</div>
-      <TouchController onChangeDir={setDir} />
+      <TouchController onChangeDir={addCommand} />
     </div>
   );
 }
