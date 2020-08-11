@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
+import TouchController from "./TouchController";
 
 const width = 20;
 const height = 12;
@@ -114,12 +115,16 @@ function Snake() {
         newDir = "down";
         break;
     }
+    if (newDir) setDir(newDir);
+  }
+
+  function setDir(dir) {
     setGame((oldGame) => {
       return {
         ...oldGame,
         snake: {
           ...oldGame.snake,
-          dir: newDir,
+          dir,
         },
       };
     });
@@ -146,6 +151,7 @@ function Snake() {
   return (
     <div className="game-container">
       <div className="snake-grid">{cells}</div>
+      <TouchController onChangeDir={setDir} />
     </div>
   );
 }
