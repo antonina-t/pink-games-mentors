@@ -144,7 +144,7 @@ function Memory() {
 
   function fetchLeaderboard() {
     return utils
-      .fetchLeaderboard("memory")
+      .fetchLeaderboard("memory", [["timeMs", "asc"]])
       .then((entries) =>
         entries.map(
           ({ name, timeMs }, i) =>

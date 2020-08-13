@@ -2,12 +2,18 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
-export function fetchLeaderboard(game) {
+export function fetchLeaderboard(game, orderBy) {
   const auth = firebase.auth();
   const db = firebase.firestore();
   return auth
     .signInAnonymously()
-    .then(() => db.collection(game).orderBy("timeMs", "asc").get())
+    .then(() => {
+      let query = db.collection(game);
+      orderBy.forEach((rule) => {
+        query = query.orderBy(...rule);
+      });
+      return query.get();
+    })
     .then((querySnapshot) => {
       let leaderboard = [];
       querySnapshot.forEach((doc) => {
