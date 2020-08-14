@@ -29,6 +29,8 @@
 }
 .front {
   transform: rotateY(180deg);
+}
+.image {
   background-size: cover;
 }
 .banana {

@@ -22,13 +22,13 @@ function generateCards() {
   for (let i = 0; i < images.length; i++) {
     cards.push({
       key: i * 2,
-      color: images[i],
+      image: images[i],
       isFlipped: false,
       isLocked: false,
     });
     cards.push({
       key: i * 2 + 1,
-      color: images[i],
+      image: images[i],
       isFlipped: false,
       isLocked: false,
     });
@@ -115,7 +115,7 @@ function Memory() {
           firstCard: card,
         };
       } else {
-        if (firstCard.color !== card.color) {
+        if (firstCard.image !== card.image) {
           setWrongPair([firstCard, card]);
         } else {
           newCards = setMatchingPair(newCards, [firstCard.key, card.key]);
