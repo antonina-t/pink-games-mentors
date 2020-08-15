@@ -2,10 +2,16 @@
   .ms-grid {
     height: 40vw;
   }
+  .ms-icon {
+    font-size: 1.8vw;
+  }
 }
 @media only screen and (orientation: portrait) {
   .ms-grid {
     height: 96vw;
+  }
+  .ms-icon {
+    font-size: 4vw;
   }
 }
 .ms-grid {

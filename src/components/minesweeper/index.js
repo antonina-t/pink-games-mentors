@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./index.css";
 import MinesweeperCell from "./MinesweeperCell";
+import ModeSwitch from "./ModeSwitch";
 
 const size = 10;
 const mines = 15;
@@ -48,12 +49,26 @@ function isMineAt(grid, x, y) {
   return grid[y * size + x].isMine;
 }
 
-function openCell(grid, x, y) {
-  return grid.map((cell, i) => {
+function openCells(grid, x, y) {
+  if (x < 0 || y < 0 || x >= size || y >= size) return grid;
+  if (grid[y * size + x].isOpen) return grid;
+  let newGrid = grid.map((cell, i) => {
     return i === y * size + x
       ? { ...cell, isOpen: true, isMarked: false }
       : cell;
   });
+  if (!minesAround(newGrid, x, y)) {
+    newGrid = openCells(newGrid, x - 1, y - 1);
+    newGrid = openCells(newGrid, x, y - 1);
+    newGrid = openCells(newGrid, x + 1, y - 1);
+    newGrid = openCells(newGrid, x - 1, y);
+    newGrid = openCells(newGrid, x + 1, y);
+    newGrid = openCells(newGrid, x - 1, y + 1);
+    newGrid = openCells(newGrid, x, y + 1);
+    newGrid = openCells(newGrid, x + 1, y + 1);
+  }
+
+  return newGrid;
 }
 
 function openAllMines(grid) {
@@ -76,6 +91,7 @@ function markCell(grid, x, y) {
 function Minesweeper() {
   const [grid, setGrid] = useState(generateGrid());
   const [gameOver, setGameOver] = useState(false);
+  const [isMarkMode, setIsMarkMode] = useState(false);
 
   function onCellClick(x, y) {
     if (gameOver) return;
@@ -84,7 +100,7 @@ function Minesweeper() {
         setGameOver(true);
         return openAllMines(oldGrid);
       }
-      return openCell(oldGrid, x, y);
+      return openCells(oldGrid, x, y);
     });
   }
 
@@ -101,7 +117,9 @@ function Minesweeper() {
           key={x + "-" + y}
           {...grid[y * size + x]}
           minesAround={minesAround(grid, x, y)}
-          onClick={() => onCellClick(x, y)}
+          onClick={() =>
+            isMarkMode ? onCellRightClick(x, y) : onCellClick(x, y)
+          }
           onRightClick={() => onCellRightClick(x, y)}
         />
       );
@@ -111,6 +129,10 @@ function Minesweeper() {
   return (
     <div className="game-container">
       <div className="ms-grid">{cells}</div>
+      <ModeSwitch
+        isMarkMode={isMarkMode}
+        onChange={() => setIsMarkMode(!isMarkMode)}
+      />
     </div>
   );
 }
