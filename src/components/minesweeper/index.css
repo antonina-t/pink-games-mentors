@@ -15,6 +15,7 @@
   }
 }
 .ms-grid {
+  margin-top: 1vw;
   display: grid;
   grid-template-columns: repeat(10, auto);
   grid-template-rows: repeat(10, auto);

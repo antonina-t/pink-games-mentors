@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
 import MinesweeperCell from "./MinesweeperCell";
 import ModeSwitch from "./ModeSwitch";
+import StatusBar from "../StatusBar";
+import ResultModal from "../ResultModal";
+import * as utils from "../../utils";
 
 const size = 10;
 const mines = 15;
@@ -91,22 +94,85 @@ function markCell(grid, x, y) {
 function Minesweeper() {
   const [grid, setGrid] = useState(generateGrid());
   const [gameOver, setGameOver] = useState(false);
+  const [win, setWin] = useState(false);
   const [isMarkMode, setIsMarkMode] = useState(false);
+  const [startTime, setStartTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [scoreIsSaved, setScoreIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (gameOver || win || !startTime) return;
+    const intervalId = setInterval(
+      () => setElapsedTime(Date.now() - startTime),
+      1000
+    );
+    return () => clearInterval(intervalId);
+  }, [startTime, gameOver, win]);
 
   function onCellClick(x, y) {
-    if (gameOver) return;
+    if (gameOver || win) return;
     setGrid((oldGrid) => {
       if (oldGrid[y * size + x].isMine) {
         setGameOver(true);
+        setElapsedTime(Date.now() - startTime);
+        setShowModal(true);
         return openAllMines(openCells(oldGrid, x, y));
       }
-      return openCells(oldGrid, x, y);
+      const newGrid = openCells(oldGrid, x, y);
+      checkWin(newGrid);
+      return newGrid;
     });
+    setStartTime((oldStartTime) =>
+      oldStartTime === 0 ? Date.now() : oldStartTime
+    );
   }
 
   function onCellRightClick(x, y) {
-    if (gameOver) return;
-    setGrid((oldGrid) => markCell(oldGrid, x, y));
+    if (gameOver || win) return;
+    setGrid((oldGrid) => {
+      const newGrid = markCell(oldGrid, x, y);
+      checkWin(newGrid);
+      return newGrid;
+    });
+    setStartTime((oldStartTime) =>
+      oldStartTime === 0 ? Date.now() : oldStartTime
+    );
+  }
+
+  function checkWin(grid) {
+    if (grid.every((cell) => cell.isOpen || (cell.isMarked && cell.isMine))) {
+      setWin(true);
+      setShowModal(true);
+    }
+  }
+
+  function onRestart() {
+    setGrid(generateGrid());
+    setGameOver(false);
+    setWin(false);
+    setStartTime(0);
+    setElapsedTime(0);
+    setScoreIsSaved(false);
+  }
+
+  function fetchLeaderboard() {
+    return utils
+      .fetchLeaderboard("minesweeper", [["timeMs", "asc"]])
+      .then((entries) =>
+        entries.map(
+          ({ name, timeMs }, i) =>
+            `${i + 1}. ${name}: ${utils.prettifyTime(timeMs)}`
+        )
+      );
+  }
+
+  function saveScore(name) {
+    if (name) {
+      utils
+        .saveScore("minesweeper", { name: name, timeMs: elapsedTime })
+        .then(() => setScoreIsSaved(true));
+    }
   }
 
   const cells = [];
@@ -128,11 +194,42 @@ function Minesweeper() {
 
   return (
     <div className="game-container">
+      <StatusBar
+        status={"Time: " + utils.prettifyTime(elapsedTime)}
+        score={
+          "Mines left: " + (mines - grid.filter((cell) => cell.isMarked).length)
+        }
+        onRestart={onRestart}
+        onShowLeaderboard={() => setShowModal(true)}
+      ></StatusBar>
       <div className="ms-grid">{cells}</div>
       <ModeSwitch
         isMarkMode={isMarkMode}
         onChange={() => setIsMarkMode(!isMarkMode)}
       />
+      <ResultModal
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        header={
+          win
+            ? "Congratulations, you swept all the mines!"
+            : gameOver
+            ? "Game over!"
+            : "Leaderboard"
+        }
+        body={
+          (gameOver || win) &&
+          "You found " +
+            (win ? "all of the " : "") +
+            grid.filter((cell) => cell.isMarked && cell.isMine).length +
+            " mines." +
+            (win
+              ? " Your time was " + utils.prettifyTime(elapsedTime) + "."
+              : "")
+        }
+        fetchLeaderboard={fetchLeaderboard}
+        saveScore={win && !scoreIsSaved && saveScore}
+      ></ResultModal>
     </div>
   );
 }
