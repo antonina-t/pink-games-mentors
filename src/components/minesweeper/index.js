@@ -98,7 +98,7 @@ function Minesweeper() {
     setGrid((oldGrid) => {
       if (oldGrid[y * size + x].isMine) {
         setGameOver(true);
-        return openAllMines(oldGrid);
+        return openAllMines(openCells(oldGrid, x, y));
       }
       return openCells(oldGrid, x, y);
     });
