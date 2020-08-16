@@ -6,11 +6,13 @@ export function fetchLeaderboard(game, orderBy) {
   const auth = firebase.auth();
   const db = firebase.firestore();
 
+  console.log(game, orderBy);
+
   return auth
     .signInAnonymously()
     .then(() => {
       let query = db.collection(game);
-      orderBy.forEach((rule) => query.orderBy(...rule));
+      orderBy.forEach((rule) => (query = query.orderBy(...rule)));
       return query.limit(10).get();
     })
     .then((querySnapshot) => {
@@ -29,4 +31,11 @@ export function saveScore(game, score) {
     .signInAnonymously()
     .then(() => db.collection(game).add(score))
     .catch((error) => console.log("Error saving score: ", error));
+}
+
+export function prettifyTime(timeMs) {
+  const totalSeconds = Math.floor(timeMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds - minutes * 60;
+  return minutes ? `${minutes}m ${seconds}s` : `${seconds}s`;
 }

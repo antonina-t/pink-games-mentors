@@ -60,13 +60,6 @@ function lockCards(cards, keysToLock) {
   });
 }
 
-function prettifyTime(timeMs) {
-  const totalSeconds = Math.floor(timeMs / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds - minutes * 60;
-  return minutes ? `${minutes}m ${seconds}s` : `${seconds}s`;
-}
-
 function Memory() {
   const [game, setGame] = useState({ cards: generateCards() });
   const [wrongPair, setWrongPair] = useState([]);
@@ -164,7 +157,8 @@ function Memory() {
   function fetchLeaderboard() {
     return utils.fetchLeaderboard("memory", [["timeMs", "asc"]]).then((lb) => {
       return lb.map(
-        (entry, i) => `${i + 1}. ${entry.name}: ${prettifyTime(entry.timeMs)}`
+        (entry, i) =>
+          `${i + 1}. ${entry.name}: ${utils.prettifyTime(entry.timeMs)}`
       );
     });
   }
@@ -181,7 +175,7 @@ function Memory() {
     <div className="game-container">
       <Preloads />
       <StatusBar
-        status={"Time: " + prettifyTime(elapsedTime)}
+        status1={"Time: " + utils.prettifyTime(elapsedTime)}
         onRestart={onRestart}
         onShowLeaderboard={() => setShowModal(true)}
       ></StatusBar>
@@ -193,7 +187,7 @@ function Memory() {
       <ResultModal
         show={showModal}
         header={win ? "Congratulations, you won!" : "Leaderboard"}
-        body={win && "Your time was " + prettifyTime(elapsedTime) + "."}
+        body={win && "Your time was " + utils.prettifyTime(elapsedTime) + "."}
         handleClose={() => setShowModal(false)}
         fetchLeaderboard={fetchLeaderboard}
         saveScore={win && !scoreIsSaved && saveScore}

@@ -2,9 +2,12 @@
   display: flex;
   align-items: center;
 }
-.status {
+.status-container {
   flex: 1;
+}
+.status {
   margin: 0;
+  font-weight: 600;
 }
 .button {
   flex: 0;

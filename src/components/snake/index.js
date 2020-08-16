@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
 import TouchController from "./TouchController";
+import StatusBar from "../StatusBar";
+import ResultModal from "../ResultModal";
+import * as utils from "../../utils";
 
 const width = 20;
 const height = 12;
@@ -106,21 +109,31 @@ function tick(game) {
 }
 
 function getIntervalMs(game) {
-  const food = game.snake.tail.length - 1;
-  return initialIntervalMs * Math.pow(0.95, Math.floor(food / 3));
+  return initialIntervalMs * Math.pow(0.95, Math.floor(getScore(game) / 3));
+}
+
+function getScore(game) {
+  return game.snake.tail.length - 1;
 }
 
 function Snake() {
   const [game, setGame] = useState(generateGame());
   const [gameOver, setGameOver] = useState(false);
   const [intervalMs, setIntervalMs] = useState(initialIntervalMs);
+  const [startTime, setStartTime] = useState(Date.now());
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [scoreIsSaved, setScoreIsSaved] = useState(false);
 
   useEffect(() => {
     if (!gameOver) {
       const intervalId = setInterval(() => {
         setGame((oldGame) => {
           const newGame = tick(oldGame);
-          if (newGame.isOver) setGameOver(true);
+          if (newGame.isOver) {
+            setGameOver(true);
+            setShowModal(true);
+          }
           setIntervalMs(getIntervalMs(newGame));
           return newGame;
         });
@@ -128,6 +141,15 @@ function Snake() {
       return () => clearInterval(intervalId);
     }
   }, [gameOver, intervalMs]);
+
+  useEffect(() => {
+    if (!gameOver) {
+      const intervalId = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [startTime, gameOver]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
@@ -168,6 +190,38 @@ function Snake() {
     }
   }
 
+  function onRestart() {
+    setGame(generateGame());
+    setGameOver(false);
+    setIntervalMs(initialIntervalMs);
+    setStartTime(Date.now());
+    setElapsedTime(0);
+    setScoreIsSaved(false);
+  }
+
+  function fetchLeaderboard() {
+    return utils
+      .fetchLeaderboard("snake", [
+        ["score", "desc"],
+        ["timeMs", "asc"],
+      ])
+      .then((lb) => {
+        return lb.map((entry, i) => `${i + 1}. ${entry.name}: ${entry.score}`);
+      });
+  }
+
+  function saveScore(name) {
+    if (name) {
+      utils
+        .saveScore("snake", {
+          name: name,
+          timeMs: elapsedTime,
+          score: getScore(game),
+        })
+        .then(() => setScoreIsSaved(true));
+    }
+  }
+
   const cells = [];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -188,8 +242,22 @@ function Snake() {
 
   return (
     <div className="game-container">
+      <StatusBar
+        status1={"Time: " + utils.prettifyTime(elapsedTime)}
+        status2={"Score: " + getScore(game)}
+        onRestart={onRestart}
+        onShowLeaderboard={() => setShowModal(true)}
+      ></StatusBar>
       <div className="snake-grid">{cells}</div>
       <TouchController onChangeDir={addCommand} />
+      <ResultModal
+        show={showModal}
+        header={gameOver ? "Game over!" : "Leaderboard"}
+        body={gameOver && "You score was " + getScore(game) + "."}
+        handleClose={() => setShowModal(false)}
+        fetchLeaderboard={fetchLeaderboard}
+        saveScore={gameOver && !scoreIsSaved && saveScore}
+      ></ResultModal>
     </div>
   );
 }
