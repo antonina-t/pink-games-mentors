@@ -1,0 +1,15 @@
+@media only screen and (orientation: landscape) {
+  .ms-grid {
+    height: 40vw;
+  }
+}
+@media only screen and (orientation: portrait) {
+  .ms-grid {
+    height: 96vw;
+  }
+}
+.ms-grid {
+  display: grid;
+  grid-template-columns: repeat(10, auto);
+  grid-template-rows: repeat(10, auto);
+}
