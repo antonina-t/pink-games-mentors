@@ -25,13 +25,13 @@
   border-left-color: #ffffff;
   text-align: center;
   display: table;
+  font-family: "Press Start 2P";
 }
 .ms-cell-open {
   background-color: #cecece;
   border: 1px solid #dddddd;
 }
 .ms-icon {
-  font-family: "Press Start 2P";
   display: table-cell;
   vertical-align: middle;
 }

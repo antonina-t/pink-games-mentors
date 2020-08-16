@@ -18,8 +18,8 @@ function MinesweeperCell({
         onRightClick();
       }}
     >
-      {isMarked && <span className="ms-icon">🏴</span>}
-      {isMine && isOpen && <span className="ms-icon">💣</span>}
+      {isMarked && <span className="ms-icon fas fa-flag"></span>}
+      {isMine && isOpen && <span className="ms-icon fas fa-bomb"></span>}
       {!isMine && isOpen && minesAround > 0 && (
         <span className={"ms-icon ms-" + minesAround}>{minesAround}</span>
       )}
