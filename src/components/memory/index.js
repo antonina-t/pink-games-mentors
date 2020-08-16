@@ -162,7 +162,7 @@ function Memory() {
   }
 
   function fetchLeaderboard() {
-    return utils.fetchLeaderboard("memory").then((lb) => {
+    return utils.fetchLeaderboard("memory", [["timeMs", "asc"]]).then((lb) => {
       return lb.map(
         (entry, i) => `${i + 1}. ${entry.name}: ${prettifyTime(entry.timeMs)}`
       );
